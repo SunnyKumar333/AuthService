@@ -34,7 +34,7 @@ func NewApplication(config *Config, storage *db.Storage) *Application {
 }
 
 func (this *Application) Run() error {
-	userRepository := db.NewStorage().UserRepository
+	userRepository := this.Storage.UserRepository
 	userService := service.NewUserService(userRepository)
 	userController := controller.NewUserController(userService)
 	userRouter := router.NewUserRouter(userController)

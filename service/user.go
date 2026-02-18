@@ -2,10 +2,22 @@ package service
 
 import (
 	db "AuthService/db/repository"
+	dto "AuthService/dto"
+	modals "AuthService/models"
+	"AuthService/utils"
+	hash "AuthService/utils"
+	"fmt"
+
+	env "AuthService/config/env"
+
+	jwt "github.com/golang-jwt/jwt/v5"
+
+	"errors"
 )
 
 type UserService interface {
-	CreateUser() error
+	CreateUser(*dto.UserDTO) (*modals.User, error)
+	LoginUser() (string, error)
 }
 
 type userServiceImpl struct {
@@ -18,6 +30,53 @@ func NewUserService(userRepository db.UserRepository) UserService {
 	}
 }
 
-func (this *userServiceImpl) CreateUser() error {
-	return nil
+func (this *userServiceImpl) CreateUser(userDTO *dto.UserDTO) (*modals.User, error) {
+	hashedPassword, err := hash.HashPassword(userDTO.Password)
+	if err != nil {
+		return nil, err
+	}
+	userDTO.Password = hashedPassword
+	user, err := this.userRepository.Create(userDTO)
+
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (this *userServiceImpl) LoginUser() (string, error) {
+	password := "Password@123"
+	email := "sunny@gmail.com"
+
+	// 1. get user from database with given email
+	user, err := this.userRepository.GetByEmail(email)
+
+	if err != nil {
+		return "", err
+	}
+	fmt.Println(user)
+
+	// 2. verify password and hased_password
+	isPasswordValid := utils.ValidatePassword(password, user.Password)
+
+	if !isPasswordValid {
+		return "", errors.New("Password dosen't Match")
+	}
+
+	// 3. create jwt token
+	payload := jwt.MapClaims{
+		"email": user.Email,
+		"id":    user.Id,
+	}
+
+	tokenObj := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
+	fmt.Println(env.GetString("JWT_SECRET", "my_secret"))
+	token, err := tokenObj.SignedString([]byte(env.GetString("JWT_SECRET", "my_secret")))
+	if err != nil {
+		fmt.Println("Error wile generating JWt Token:", err)
+		return "", nil
+	}
+	fmt.Println(token)
+
+	return token, nil
 }

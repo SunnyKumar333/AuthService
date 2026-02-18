@@ -6,8 +6,8 @@ type Storage struct {
 	UserRepository UserRepository
 }
 
-func NewStorage() *Storage {
+func NewStorage(db *sql.DB) *Storage {
 	return &Storage{
-		UserRepository: NewUserRepository(&sql.DB{}),
+		UserRepository: NewUserRepository(db),
 	}
 }
