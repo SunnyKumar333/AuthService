@@ -17,7 +17,7 @@ import (
 
 type UserService interface {
 	CreateUser(*dto.UserDTO) (*modals.User, error)
-	LoginUser() (string, error)
+	LoginUser(*dto.LoginUserDTO) (string, error)
 }
 
 type userServiceImpl struct {
@@ -44,9 +44,9 @@ func (this *userServiceImpl) CreateUser(userDTO *dto.UserDTO) (*modals.User, err
 	return user, nil
 }
 
-func (this *userServiceImpl) LoginUser() (string, error) {
-	password := "Password@123"
-	email := "sunny@gmail.com"
+func (this *userServiceImpl) LoginUser(loginUserPayload *dto.LoginUserDTO) (string, error) {
+	password := loginUserPayload.Password
+	email := loginUserPayload.Email
 
 	// 1. get user from database with given email
 	user, err := this.userRepository.GetByEmail(email)

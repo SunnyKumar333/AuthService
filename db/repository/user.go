@@ -4,6 +4,7 @@ import (
 	dto "AuthService/dto"
 	models "AuthService/models"
 	"database/sql"
+	"errors"
 	"fmt"
 )
 
@@ -11,7 +12,6 @@ type UserRepository interface {
 	Create(*dto.UserDTO) (*models.User, error)
 	GetById(int) (*models.User, error)
 	GetByEmail(string) (*models.User, error)
-	// GetAll() ([]*models.User, error)
 	// DeleteById(int) (*models.User, error)
 }
 
@@ -63,7 +63,7 @@ func (this *UserSqlRepository) GetById(userId int) (*models.User, error) {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			fmt.Println("No User found with given id", err)
-			return nil, err
+			return nil, errors.New("No Record Found with this id")
 		} else {
 			fmt.Println("Error while scanning rows:", err)
 			return nil, err
@@ -87,7 +87,7 @@ func (this *UserSqlRepository) GetByEmail(email string) (*models.User, error) {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			fmt.Println("No User fount with email:", email)
-			return nil, err
+			return nil, errors.New("No Record Found with this email")
 		} else {
 			fmt.Println("Error:", err)
 			return nil, err
