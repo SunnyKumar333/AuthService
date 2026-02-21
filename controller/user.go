@@ -19,13 +19,15 @@ func NewUserController(userServive service.UserService) *UserController {
 }
 
 func (this *UserController) RegisterUser(w http.ResponseWriter, r *http.Request) {
-	userDTO := &dto.UserDTO{
-		Username: "sunny",
-		Email:    "sunny@gmail.com",
-		Password: "Password@123",
+	userDTO := r.Context().Value("payload").(dto.UserDTO)
+	user, err := this.userService.CreateUser(&userDTO)
+	if err != nil {
+		utils.WriteJSONErrorResponse(w, http.StatusBadRequest, err, err.Error())
+		return
 	}
-	this.userService.CreateUser(userDTO)
-	w.Write([]byte("Responce from User Registeration!!"))
+
+	utils.WriteJSONSuccessResponse(w, http.StatusCreated, user, "User Created Successfully")
+
 }
 
 func (this *UserController) GetUserById(w http.ResponseWriter, r *http.Request) {

@@ -9,7 +9,7 @@ import (
 )
 
 type UserRepository interface {
-	Create(*dto.UserDTO) (*models.User, error)
+	Create(*dto.UserDTO) (*dto.UserResponseDTO, error)
 	GetById(string) (*dto.UserResponseDTO, error)
 	GetByEmail(string) (*models.User, error)
 	// DeleteById(int) (*models.User, error)
@@ -25,7 +25,7 @@ func NewUserRepository(db *sql.DB) UserRepository {
 	}
 }
 
-func (this *UserSqlRepository) Create(userDTO *dto.UserDTO) (*models.User, error) {
+func (this *UserSqlRepository) Create(userDTO *dto.UserDTO) (*dto.UserResponseDTO, error) {
 	query := "INSERT INTO users (username,email,password_hashed) VALUES (?,?,?)"
 	result, err := this.db.Exec(query, userDTO.Username, userDTO.Email, userDTO.Password)
 
@@ -48,7 +48,25 @@ func (this *UserSqlRepository) Create(userDTO *dto.UserDTO) (*models.User, error
 
 	fmt.Println("User Created Successfully!")
 
-	return &models.User{}, nil
+	user := &dto.UserResponseDTO{}
+
+	query = "SELECT id,username,email FROM users WHERE email=?"
+
+	row := this.db.QueryRow(query, userDTO.Email)
+	err = row.Scan(&user.Id, &user.Username, &user.Email)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			fmt.Println("No User fount with email:", user.Email)
+			return nil, errors.New("No Record Found with this email")
+		} else {
+			fmt.Println("Error:", err)
+			return nil, err
+		}
+
+	}
+	// fmt.Println("Fount user with email:", email)
+	return user, nil
 
 }
 

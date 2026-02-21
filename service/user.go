@@ -3,7 +3,6 @@ package service
 import (
 	db "AuthService/db/repository"
 	dto "AuthService/dto"
-	modals "AuthService/models"
 	"AuthService/utils"
 	hash "AuthService/utils"
 	"fmt"
@@ -16,7 +15,7 @@ import (
 )
 
 type UserService interface {
-	CreateUser(*dto.UserDTO) (*modals.User, error)
+	CreateUser(*dto.UserDTO) (*dto.UserResponseDTO, error)
 	LoginUser(*dto.LoginUserDTO) (string, error)
 	GetUserById(string) (*dto.UserResponseDTO, error)
 }
@@ -31,7 +30,7 @@ func NewUserService(userRepository db.UserRepository) UserService {
 	}
 }
 
-func (this *userServiceImpl) CreateUser(userDTO *dto.UserDTO) (*modals.User, error) {
+func (this *userServiceImpl) CreateUser(userDTO *dto.UserDTO) (*dto.UserResponseDTO, error) {
 	hashedPassword, err := hash.HashPassword(userDTO.Password)
 	if err != nil {
 		return nil, err
