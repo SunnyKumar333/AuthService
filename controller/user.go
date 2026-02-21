@@ -4,6 +4,7 @@ import (
 	dto "AuthService/dto"
 	service "AuthService/service"
 	utils "AuthService/utils"
+	"fmt"
 	"net/http"
 )
 
@@ -33,22 +34,12 @@ func (this *UserController) GetUserById(w http.ResponseWriter, r *http.Request) 
 
 func (this *UserController) LoginUser(w http.ResponseWriter, r *http.Request) {
 
-	loginUserPayload := &dto.LoginUserDTO{}
-	// serializing body into json
-	if jsonErr := utils.ReadJSONBody(r, loginUserPayload); jsonErr != nil {
-		errorMessage := "Invalid Request Body"
-		utils.WriteJSONErrorResponse(w, http.StatusBadRequest, jsonErr, errorMessage)
-		return
-	}
+	loginUserPayload := r.Context().Value("payload").(dto.LoginUserDTO)
 
-	//validating json body using validator package
-	if validationErr := utils.Validator.Struct(loginUserPayload); validationErr != nil {
-		errorMessage := "Validation Error"
-		utils.WriteJSONErrorResponse(w, http.StatusBadRequest, validationErr, errorMessage)
-		return
-	}
+	fmt.Println("payload:", loginUserPayload)
+
 	//attempt to login
-	jwtToken, loginErr := this.userService.LoginUser(loginUserPayload)
+	jwtToken, loginErr := this.userService.LoginUser(&loginUserPayload)
 	if loginErr != nil {
 		errorMessage := "Invalid Credential"
 		utils.WriteJSONErrorResponse(w, http.StatusUnauthorized, loginErr, errorMessage)

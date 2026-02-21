@@ -20,6 +20,10 @@ migrate-down:
 	goose -dir ${MIGRATION_FOLDER} mysql ${DB_URL} down
 	@echo "done!"
 
+run:
+	@echo "starting project....."
+	go run main.go
+
 test:
 	@echo DB_URL:${DB_URL}
 
