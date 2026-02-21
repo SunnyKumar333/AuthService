@@ -29,7 +29,18 @@ func (this *UserController) RegisterUser(w http.ResponseWriter, r *http.Request)
 }
 
 func (this *UserController) GetUserById(w http.ResponseWriter, r *http.Request) {
-	// this.userService.GetUserById()
+	userId := r.Context().Value("userId").(string)
+	// id := r.URL.Query().Get("id")
+	// userId, _ := strconv.Atoi(id)
+
+	user, err := this.userService.GetUserById(userId)
+
+	if err != nil {
+		utils.WriteJSONErrorResponse(w, http.StatusNotFound, err, "User Not Fount")
+		return
+	}
+
+	utils.WriteJSONSuccessResponse(w, http.StatusOK, user, "User Profile Detail")
 }
 
 func (this *UserController) LoginUser(w http.ResponseWriter, r *http.Request) {

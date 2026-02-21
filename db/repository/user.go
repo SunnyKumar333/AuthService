@@ -10,7 +10,7 @@ import (
 
 type UserRepository interface {
 	Create(*dto.UserDTO) (*models.User, error)
-	GetById(int) (*models.User, error)
+	GetById(string) (*dto.UserResponseDTO, error)
 	GetByEmail(string) (*models.User, error)
 	// DeleteById(int) (*models.User, error)
 }
@@ -52,13 +52,13 @@ func (this *UserSqlRepository) Create(userDTO *dto.UserDTO) (*models.User, error
 
 }
 
-func (this *UserSqlRepository) GetById(userId int) (*models.User, error) {
-	query := "SELECT * FROM users WHERE id=?"
-	row := this.db.QueryRow(query, 2)
+func (this *UserSqlRepository) GetById(userId string) (*dto.UserResponseDTO, error) {
+	query := "SELECT id,username,email FROM users WHERE id=?"
+	row := this.db.QueryRow(query, userId)
 
-	user := &models.User{}
+	user := &dto.UserResponseDTO{}
 
-	err := row.Scan(&user.Id, &user.Username, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt)
+	err := row.Scan(&user.Id, &user.Username, &user.Email)
 
 	if err != nil {
 		if err == sql.ErrNoRows {

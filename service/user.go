@@ -18,6 +18,7 @@ import (
 type UserService interface {
 	CreateUser(*dto.UserDTO) (*modals.User, error)
 	LoginUser(*dto.LoginUserDTO) (string, error)
+	GetUserById(string) (*dto.UserResponseDTO, error)
 }
 
 type userServiceImpl struct {
@@ -79,4 +80,9 @@ func (this *userServiceImpl) LoginUser(loginUserPayload *dto.LoginUserDTO) (stri
 	fmt.Println(token)
 
 	return token, nil
+}
+
+func (this *userServiceImpl) GetUserById(userId string) (*dto.UserResponseDTO, error) {
+	fmt.Println("Finding user with user_id:", userId)
+	return this.userRepository.GetById(userId)
 }
